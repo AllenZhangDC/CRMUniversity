@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  name          String?
+  role          String    @default("student") // student, admin
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  enrollments   Enrollment[]
+}
+
+model Course {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  details     String?  @db.NVarChar(Max) 
+  syllabus    String?  @db.NVarChar(Max) 
+  videoUrl    String?  
+  track       String
+  level       Int
+  price       Decimal?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  enrollments Enrollment[]
+}
+
+model Enrollment {
+  id        String   @id @default(uuid())
+  userId    String
+  courseId  String
+  enrolledAt DateTime @default(now())
+  progress  Int      @default(0) 
+  
+  user      User     @relation(fields: [userId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
+}
+
+model Feedback {
+  id          String   @id @default(uuid())
+  studentName String
+  content     String
+  role        String?
+  rating      Int      @default(5)
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+}
+
+model Inquiry {
+  id        String   @id @default(uuid())
+  email     String
+  name      String?
+  message   String?
+  createdAt DateTime @default(now())
+}
+
+model BlogPost {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  excerpt     String?
+  content     String   @db.NVarChar(Max)
+  coverImage  String?
+  seoTitle    String? 
+  seoDesc     String?
+  seoKeywords String?
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+}
